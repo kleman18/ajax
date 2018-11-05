@@ -13,6 +13,15 @@ function loadHtmlAjax() {
     xhr.send();
 }
 
+document.querySelector('.load-html-fetch').addEventListener('click', loadHtmlFetch);
+
+function loadHtmlFetch() {
+    fetch('client-data.html')
+        .then(response => response.text() )
+        .then( html => document.querySelector('.html-placeholder').innerHTML = html )
+}
+
+
 document.querySelector('.load-json-ajax').addEventListener('click', loadJsonAjax);
 
 function loadJsonAjax() {
@@ -28,22 +37,43 @@ function loadJsonAjax() {
     xhr.send();
 }
 
-document.querySelector('.login-form input[type=sybmit]').addEventListener('click', submitForm);
+document.querySelector('.load-json-fetch').addEventListener('click', loadJsonFetch);
+
+function loadJsonFetch() {
+    fetch('client-data.json')
+        .then( response => response.json() )
+        .then( clientData => {
+            document.querySelector('.client-name').innerText = clientData.name;
+            document.querySelector('.account-balance').innerText = clientData.account;    
+        })
+}
+
+document.querySelector('.login-form input[type=submit]').addEventListener('click', submitForm);
 
 function submitForm(e) {
-    e.preventDefault();
-    const xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            document.querySelector('.login-form').innerHTML = '<h3>Welkome!</h3>';
-        }
-        else if (xhr.readyState === 4 && xhr.status === 200) {
-            document.querySelector('.login-form').innerHTML += 'Error!';
-        }
-    }
-    xhr.open('POST', 'login.php', true);
     const form = document.querySelector('.login-form');
-    const data = new FormData(form);
-    var req = new XMLHttpRequest();
-    xhr.send(data);
+    if (form.checkValidity()) {
+        e.preventDefault();
+        const xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                document.querySelector('.message-box').innerHTML = 
+                '<h3>Welcome!</h3>' + xhr.responseText;
+            } else if (xhr.readyState === 4 && xhr.status !== 200) {
+                document.querySelector('.message-box').innerHTML = 'Error!';
+            }
+        }
+        xhr.open('POST', 'login.php', true);
+        const data = new FormData(form);
+        xhr.send(data);
+    }
 }
+
+
+document.querySelector('.run-query').addEventListener('click', function() {
+   fetch(document.querySelector('.url').value)
+      .then( response => response.json() )
+      .then( result => {
+          document.querySelector('.public-api-result').innerText = JSON.stringify(result);
+  }); 
+});
